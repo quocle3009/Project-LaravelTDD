@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -23,10 +24,12 @@ Route::get('/tasks', [TaskController::class, 'index'])
 Route::post('/tasks', [TaskController::class, 'store'])
     ->name('tasks.store')
     ->middleware('auth');
+
+
 Route::get('/tasks/create', [TaskController::class, 'create'])
     ->name('tasks.create')
     ->middleware('auth');
-Auth::routes();
+
 
 
 Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
@@ -40,6 +43,6 @@ Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.e
 // Route để xử lý việc cập nhật task sau khi chỉnh sửa
 Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update')->middleware('auth');
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Auth::routes();

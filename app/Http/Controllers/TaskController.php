@@ -26,8 +26,10 @@ class TaskController extends Controller
     public function store(CreateTaskRequest $request)
     {
         $this->task->create($request->all());
-        return redirect()->route('tasks.index');
+
+        return redirect()->route('tasks.index')->with('success', 'Task added successfully.');
     }
+
 
     public function create()
     {
@@ -41,20 +43,26 @@ class TaskController extends Controller
     }
 
 
-    public function update(Request $request, Task $task) {
+    public function destroy(Task $task)
+    {
+        $task->delete();
+
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
+    }
+
+    public function update(Request $request, Task $task)
+    {
+        $request->validate([
+            'name' => 'required|max:255',
+            'content' => 'nullable',
+        ]);
+
         $task->update([
             'name' => $request->input('name'),
             'content' => $request->input('content'),
         ]);
 
-        // Redirect về trang index của tasks với thông báo thành công
-        return redirect()->route('tasks.index')->with('status', 'Task updated successfully.');
-
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
 
-    public function destroy(Task $task)
-    {
-        $task->delete();
-        return redirect()->route('tasks.index');
-    }
 }
