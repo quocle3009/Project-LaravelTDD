@@ -111,5 +111,5 @@ return [
     */
 
     'password_timeout' => 10800,
-
+    'home' => '/tasks'
 ];

@@ -26,9 +26,9 @@ class TaskController extends Controller
     public function store(CreateTaskRequest $request)
     {
         $this->task->create($request->all());
-
-        return redirect()->route('tasks.index')->with('success', 'Task added successfully.');
+        return redirect()->route('tasks.index');
     }
+
 
 
     public function create()
