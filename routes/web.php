@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +45,15 @@ Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.e
 // Route để xử lý việc cập nhật task sau khi chỉnh sửa
 Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update')->middleware('auth');
 
+Auth::routes();
+
 Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+Route::middleware(['guest'])->group(function () {
+    // Route đăng nhập
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    // Route đăng ký
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+});
 
 Auth::routes();
