@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -53,8 +54,12 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.unique' => 'Custom message for email uniqueness',
+            // Các thông điệp khác...
         ]);
     }
+
 
     /**
      * Create a new user instance after a valid registration.
@@ -70,4 +75,9 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
     }
+    protected function registered(Request $request, $user)
+    {
+        return response()->json(['message' => 'Custom registration message']);
+    }
+
 }
