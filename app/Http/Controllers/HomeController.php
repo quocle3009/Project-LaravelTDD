@@ -19,10 +19,10 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index()
     {
-        return redirect()->route('tasks.index');
+        return view('home');
     }
 }

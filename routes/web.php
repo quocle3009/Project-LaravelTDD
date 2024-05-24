@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
@@ -19,41 +18,29 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('tasks.index');
 });
-Route::get('/tasks', [TaskController::class, 'index'])
-->name('tasks.index');
-Route::post('/tasks', [TaskController::class, 'store'])
-    ->name('tasks.store')
-    ->middleware('auth');
 
+// Task routes with 'auth' middleware
+Route::middleware('auth')->group(function () {
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+});
 
-Route::get('/tasks/create', [TaskController::class, 'create'])
-    ->name('tasks.create')
-    ->middleware('auth');
-
-
-
-Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
-    ->name('tasks.destroy')
-    ->middleware('auth');
+// Authentication routes
 Auth::routes();
 
+// Redirect after login
+Route::get('/home', function () {
+    return redirect()->route('tasks.index');
+})->name('home');
 
-Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit')->middleware('auth');
-
-// Route để xử lý việc cập nhật task sau khi chỉnh sửa
-Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update')->middleware('auth');
-
-Auth::routes();
-
-Route::get('/home', [HomeController::class, 'index'])->name('home');
-
-Route::middleware(['guest'])->group(function () {
-    // Route đăng nhập
+// Guest middleware group for login and register routes
+Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    // Route đăng ký
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 });
-
-Auth::routes();

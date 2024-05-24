@@ -32,17 +32,17 @@ class EditTaskTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
-//    public function authenticated_user_can_not_edit_task_form_if_field_is_null()
-//    {
-//        $this->actingAs(User::factory()->create());
-//        $task = Task::factory()->create();
-//
-//        $response = $this->put($this->getEditTaskRoute($task->id), $data);
-//
-//        $response->assertViewIs('tasks.edit');
-//        $response->assertViewHas('task', $task);
-//    }
+    // /** @test */
+    // public function authenticated_user_can_not_edit_task_form_if_field_is_null()
+    // {
+    //     $this->actingAs(User::factory()->create());
+    //     $task = Task::factory()->create();
+
+    //     $response = $this->put($this->getEditTaskRoute($task->id), $data);
+
+    //     $response->assertViewIs('tasks.edit');
+    //     $response->assertViewHas('task', $task);
+    // }
 
     /** @test */
     public function authenticated_user_can_not_edit_task_form_if_field_is_null()

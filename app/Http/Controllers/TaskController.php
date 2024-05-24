@@ -15,14 +15,22 @@ class TaskController extends Controller
 
     public function __construct(Task $task)
     {
-        $this->task=$task;
+        $this->task = $task;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = $this->task->latest('id')->paginate(10);
+        $query = $this->task->query();
+
+        if ($search = $request->query('search')) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('content', 'like', '%' . $search . '%');
+        }
+
+        $tasks = $query->latest('id')->paginate(10);
         return view('tasks.index', compact('tasks'));
     }
+
     public function store(CreateTaskRequest $request)
     {
         $this->task->create($request->all());
@@ -43,12 +51,15 @@ class TaskController extends Controller
     }
 
 
-    public function destroy(Task $task)
+    public function destroy($id)
     {
+        $task = Task::findOrFail($id);
         $task->delete();
-
-        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
+    
+        // Chuyển hướng người dùng về trang trước đó với anchor
+        return redirect()->back()->with('success', 'Task deleted successfully.')->withAnchor('#task-' . $id);
     }
+    
 
     public function update(Request $request, Task $task)
     {
