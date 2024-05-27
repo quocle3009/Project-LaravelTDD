@@ -15,22 +15,14 @@ class TaskController extends Controller
 
     public function __construct(Task $task)
     {
-        $this->task = $task;
+        $this->task=$task;
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $query = $this->task->query();
-
-        if ($search = $request->query('search')) {
-            $query->where('name', 'like', '%' . $search . '%')
-                ->orWhere('content', 'like', '%' . $search . '%');
-        }
-
-        $tasks = $query->latest('id')->paginate(10);
+        $tasks = $this->task->latest('id')->paginate(10);
         return view('tasks.index', compact('tasks'));
     }
-
     public function store(CreateTaskRequest $request)
     {
         $this->task->create($request->all());
@@ -51,15 +43,12 @@ class TaskController extends Controller
     }
 
 
-    public function destroy($id)
+    public function destroy(Task $task)
     {
-        $task = Task::findOrFail($id);
         $task->delete();
-    
-        // Chuyển hướng người dùng về trang trước đó với anchor
-        return redirect()->back()->with('success', 'Task deleted successfully.')->withAnchor('#task-' . $id);
+
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
-    
 
     public function update(Request $request, Task $task)
     {
@@ -75,5 +64,16 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
 
+        // Thực hiện tìm kiếm trên tất cả các trang
+        $results = Task::where('name', 'like', '%'.$query.'%')
+                       ->orWhere('content', 'like', '%'.$query.'%')
+                       ->latest('id')
+                       ->paginate(10);
+
+        return response()->json($results);
+    }
 }

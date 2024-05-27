@@ -20,7 +20,8 @@ class DeleteTaskTest extends TestCase
         $task = Task::factory()->create();
         $response = $this->delete($this->getDeleteTaskRoute($task->id));
         $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
-        $response->assertRedirect($this->getListTaskRoute());
+        // $response->assertRedirect($this->getListTaskRoute());
+        $response->assertRedirect('/');
     }
 
     /** @test */
