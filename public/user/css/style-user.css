@@ -1,0 +1,16 @@
+#previewContainer {
+    position: relative;
+    display: inline-block;
+}
+
+#deleteButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    display: none;
+}

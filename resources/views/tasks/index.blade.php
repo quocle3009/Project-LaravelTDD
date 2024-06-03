@@ -1,26 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <div class="row">
+    {{-- <div class="container"> --}}
+        <main id="main" class="main">
+        {{-- <div class="row">
             <div class="col-md-6">
                 <a href="{{ route('tasks.create') }}" class="btn btn-primary">Add Task</a>
             </div>
             <!-- Search form -->
             <div class="col-md-6 card-header d-flex justify-content-end align-items-center">
-                <!-- Real-time Search form -->
-                <form id="search-form" class="form-inline">
-                    <div class="input-group">
-                        <input id="search-input" type="text" class="form-control" placeholder="Search tasks">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button">
-                                <i class="fas fa-search"></i> <!-- Font Awesome search icon -->
-                            </button>
-                        </div>
-                    </div>
-                </form>
+
             </div>
-        </div>
+        </div> --}}
         <div class="row justify-content-center">
             <table class="table table-striped">
                 <thead>
@@ -55,7 +46,7 @@
                 {{ $tasks->links() }}
             </div>
         </div>
-    </div>
+    {{-- </div> --}}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -174,5 +165,5 @@
             }
         }
     </script>
-    
+    </main>
 @endsection
