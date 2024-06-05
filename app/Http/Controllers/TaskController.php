@@ -18,11 +18,21 @@ class TaskController extends Controller
         $this->task=$task;
     }
 
-    public function index()
+
+    // Trong TasksController.php hoặc controller tương ứng
+    public function index(Request $request)
     {
-        $tasks = $this->task->latest('id')->paginate(10);
-        return view('tasks.index', compact('tasks'));
+        $search = $request->input('search');
+
+        $tasks = Task::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('content', 'like', '%' . $search . '%');
+        })->latest('id')->paginate(5);
+
+        return view('tasks.index', compact('tasks', 'search'));
     }
+
+
     public function store(CreateTaskRequest $request)
     {
         $this->task->create($request->all());
@@ -76,4 +86,5 @@ class TaskController extends Controller
 
         return response()->json($results);
     }
+
 }

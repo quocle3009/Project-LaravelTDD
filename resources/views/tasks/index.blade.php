@@ -10,8 +10,28 @@
             <!-- Search form -->
             <div class="col-md-6 card-header d-flex justify-content-end align-items-center">
 
+<<<<<<< HEAD
             </div>
         </div> --}}
+=======
+    <div class="container">
+
+        <a href="{{ route('tasks.create') }}" class="btn btn-primary">Add Task</a>
+        <div class="row justify-content-end" style="margin-top: -35px">
+            <div class=" col-md-6">
+                <form action="{{ route('tasks.index') }}" method="GET" class="form-inline">
+                    <div class="input-group mb-2 mr-sm-2 ">
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Search"
+                            value="{{ $search }}">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+>>>>>>> 6f825853baaf3a906cd7a17fff5b0a22e180478a
         <div class="row justify-content-center">
             <table class="table table-striped">
                 <thead>
