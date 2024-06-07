@@ -23,14 +23,21 @@ Route::get('/', function () {
 
 // Task routes with 'auth' middleware
 Route::middleware('auth')->group(function () {
-    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
-    Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
-    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
-    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
-    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::get('/tasks', [TaskController::class, 'index'])
+        ->name('tasks.index');
+    Route::post('/tasks', [TaskController::class, 'store'])
+        ->name('tasks.store');
+    Route::get('/tasks/create', [TaskController::class, 'create'])
+        ->name('tasks.create');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
+        ->name('tasks.destroy');
+    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])
+        ->name('tasks.edit');
+    Route::put('/tasks/{task}', [TaskController::class, 'update'])
+        ->name('tasks.update');
     // search route
-    Route::get('/search', [TaskController::class, 'search'])->name('tasks.search');
+    Route::get('/search', [TaskController::class, 'search'])
+        ->name('tasks.search');
 });
 
 // Authentication routes
@@ -43,6 +50,8 @@ Route::get('/home', function () {
 
 // Guest middleware group for login and register routes
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::get('/login', [LoginController::class, 'showLoginForm'])
+        ->name('login');
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
+        ->name('register');
 });
