@@ -72,27 +72,46 @@ class TaskController extends Controller
         try {
             $query = $request->input('query', '');
             $page = $request->input('page', 1);
+            $sortColumn = $request->get('sort_column', 'id');
+            $sortOrder = $request->get('sort_order', 'desc');
 
-            if (is_null($query)) {
-                return response()->json(['error' => 'Query parameter is missing'], 400);
+            // Ensure sortColumn and sortOrder are valid
+            $allowedSortColumns = ['id', 'name', 'content'];
+            if (!in_array($sortColumn, $allowedSortColumns)) {
+                $sortColumn = 'id';
             }
 
-            // Kiểm tra dữ liệu đầu vào
-            if (empty($query)) {
-                return response()->json(['error' => 'Query parameter is empty'], 400);
+            $allowedSortOrders = ['asc', 'desc'];
+            if (!in_array(strtolower($sortOrder), $allowedSortOrders)) {
+                $sortOrder = 'desc';
             }
 
-            $tasks = Task::where('name', 'like', "%$query%")->latest('id')->paginate(10, ['*'], 'page', $page);
+            // Query tasks with or without search query
+            $tasksQuery = Task::query();
+            if (!empty($query)) {
+                $tasksQuery->where('name', 'like', "%$query%")
+                    ->orWhere('content', 'like', "%$query%");
+            }
+
+            $tasks = $tasksQuery->orderBy($sortColumn, $sortOrder)
+                ->latest('id')
+                ->paginate(10, ['*'], 'page', $page);
 
             return response()->json([
                 'data' => $tasks->items(),
-                'links' => $tasks->links()->toHtml()
+                'links' => $tasks->appends([
+                    'query' => $query,
+                    'sort_column' => $sortColumn,
+                    'sort_order' => $sortOrder
+                ])->links()->toHtml()
             ]);
         } catch (\Exception $e) {
             \Log::error('Search error: ' . $e->getMessage());
             return response()->json(['error' => 'An error occurred'], 500);
         }
     }
+
+
 
 
 }

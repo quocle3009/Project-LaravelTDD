@@ -3,11 +3,10 @@
 @section('content')
     <div class="container-fluid">
         <main id="main" class="main">
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-md-6">
                     <a href="{{ route('tasks.create') }}" class="btn btn-primary">Add Task</a>
                 </div>
-                <!-- Search form -->
                 <div class="col-md-6 d-flex justify-content-end align-items-center">
                     <form id="search-form" class="form-inline">
                         <div class="input-group">
@@ -20,8 +19,8 @@
                 <table class="table table-striped">
                     <thead>
                         <tr class="text-center">
-                            <th>ID</th>
-                            <th>Name</th>
+                            <th><a href="#" class="sort-link" data-column="id" data-order="desc">ID</a></th>
+                            <th><a href="#" class="sort-link" data-column="name" data-order="asc">Name</a></th>
                             <th>Content</th>
                             <th>Actions</th>
                         </tr>
@@ -62,113 +61,108 @@
             const searchInput = document.getElementById('search-input');
             const tasksTableBody = document.getElementById('tasks-table-body');
             const paginationLinks = document.getElementById('pagination-links');
+            const sortLinks = document.querySelectorAll('.sort-link');
 
-            // Cập nhật URL API
             const apiUrl = '/api/tasks/search';
-            const csrfToken = '{{ csrf_token() }}'; // Nếu cần CSRF Token cho các phương thức khác như POST
+            const csrfToken = '{{ csrf_token() }}';
 
-            let currentPage = 1; // Trang hiện tại
-            let currentQuery = ''; // Từ khóa tìm kiếm hiện tại
+            let currentPage = 1;
+            let currentQuery = '';
+            let sortColumn = 'id';
+            let sortOrder = 'desc';
 
-            // Function to update table based on search query
-            function updateTable(query, page = 1) {
-                // Đặt query thành chuỗi rỗng nếu không có giá trị
+            function updateTable(query, page = 1, column = 'id', order = 'desc') {
                 query = query.trim();
-                if (query === undefined || query === null) {
-                    query = '';
-                }
-
                 currentQuery = query;
                 currentPage = page;
+                sortColumn = column;
+                sortOrder = order;
 
-                // Xây dựng URL với tham số
                 const url = new URL(apiUrl, window.location.origin);
                 url.searchParams.append('query', query);
                 url.searchParams.append('page', page);
+                url.searchParams.append('sort_column', column);
+                url.searchParams.append('sort_order', order);
 
-                // Gửi yêu cầu fetch
                 fetch(url.toString(), {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            // Hiển thị mã lỗi và phản hồi từ server
-                            return response.text().then(text => {
-                                throw new Error(
-                                    `HTTP error! status: ${response.status}, details: ${text}`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Data received:', data); // Kiểm tra dữ liệu nhận được
-                        tasksTableBody.innerHTML = ''; // Xóa dữ liệu cũ
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, details: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    tasksTableBody.innerHTML = '';
 
-                        if (data.data && Array.isArray(data.data)) {
-                            data.data.forEach(task => {
-                                const row = document.createElement('tr');
-                                row.classList.add('align-middle');
+                    if (data.data && Array.isArray(data.data)) {
+                        data.data.forEach(task => {
+                            const row = document.createElement('tr');
+                            row.classList.add('align-middle');
 
-                                row.innerHTML = `
+                            row.innerHTML = `
                                 <td class="text-center">${task.id}</td>
                                 <td>${task.name}</td>
                                 <td style="height: 80px;width: 70%">${task.content}</td>
                                 <td class="text-center">
-                                    <form id="delete-form-{{ $task->id }}" method="POST"
-                                        action="{{ route('tasks.destroy', $task->id) }}" style="display:inline-block;"
-                                        onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                    <form id="delete-form-${task.id}" method="POST" action="/tasks/${task.id}" style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this task?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
-                                    <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-warning"
-                                        style="display:inline-block;margin-left: 3px">Edit</a>
+                                    <a href="/tasks/${task.id}/edit" class="btn btn-warning" style="display:inline-block;margin-left: 3px">Edit</a>
                                 </td>
                             `;
 
-                                tasksTableBody.appendChild(row); // Thêm hàng vào bảng
-                            });
-                        } else {
-                            console.error('Data is not an array or is undefined');
-                        }
+                            tasksTableBody.appendChild(row);
+                        });
+                    }
 
-                        // Cập nhật liên kết phân trang
-                        if (data.links) {
-                            paginationLinks.innerHTML = data.links;
+                    if (data.links) {
+                        paginationLinks.innerHTML = data.links;
 
-                            // Thêm sự kiện cho các liên kết phân trang
-                            paginationLinks.querySelectorAll('a').forEach(link => {
-                                link.addEventListener('click', function(event) {
-                                    event.preventDefault();
-                                    const url = new URL(link.href);
-                                    const page = url.searchParams.get('page');
-                                    updateTable(currentQuery, page);
-                                });
+                        paginationLinks.querySelectorAll('a').forEach(link => {
+                            link.addEventListener('click', function(event) {
+                                event.preventDefault();
+                                const url = new URL(link.href);
+                                const page = url.searchParams.get('page');
+                                updateTable(currentQuery, page, sortColumn, sortOrder);
                             });
-                        } else {
-                            // Nếu không có liên kết phân trang, xóa liên kết cũ
-                            paginationLinks.innerHTML = '';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching tasks:', error);
-                    });
+                        });
+                    } else {
+                        paginationLinks.innerHTML = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching tasks:', error);
+                });
             }
 
-            // Event listener cho ô tìm kiếm
             searchInput.addEventListener('input', function() {
                 const query = searchInput.value.trim();
-                if (query !== currentQuery) {
-                    updateTable(query);
-                    I
-                }
+                updateTable(query, 1, sortColumn, sortOrder);
             });
 
-            // Tải dữ liệu ban đầu
+            sortLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const column = link.dataset.column;
+                    const order = link.dataset.order;
+
+                    const newOrder = order === 'asc' ? 'desc' : 'asc';
+                    link.dataset.order = newOrder;
+
+                    updateTable(currentQuery, currentPage, column, newOrder);
+                });
+            });
+
             const initialQuery = searchInput.value.trim();
-            updateTable(initialQuery);
+            updateTable(initialQuery, 1, sortColumn, sortOrder);
         });
     </script>
 @endsection
