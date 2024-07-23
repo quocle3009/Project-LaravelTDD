@@ -15,7 +15,7 @@ class TaskController extends Controller
 
     public function __construct(Task $task)
     {
-        $this->task=$task;
+        $this->task = $task;
     }
 
     public function index()
@@ -23,6 +23,8 @@ class TaskController extends Controller
         $tasks = $this->task->latest('id')->paginate(10);
         return view('tasks.index', compact('tasks'));
     }
+
+
     public function store(CreateTaskRequest $request)
     {
         $this->task->create($request->all());
@@ -64,16 +66,33 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
+    // TaskController.php
     public function search(Request $request)
     {
-        $query = $request->input('query');
+        try {
+            $query = $request->input('query', '');
+            $page = $request->input('page', 1);
 
-        // Thực hiện tìm kiếm trên tất cả các trang
-        $results = Task::where('name', 'like', '%'.$query.'%')
-                       ->orWhere('content', 'like', '%'.$query.'%')
-                       ->latest('id')
-                       ->paginate(10);
+            if (is_null($query)) {
+                return response()->json(['error' => 'Query parameter is missing'], 400);
+            }
 
-        return response()->json($results);
+            // Kiểm tra dữ liệu đầu vào
+            if (empty($query)) {
+                return response()->json(['error' => 'Query parameter is empty'], 400);
+            }
+
+            $tasks = Task::where('name', 'like', "%$query%")->latest('id')->paginate(10, ['*'], 'page', $page);
+
+            return response()->json([
+                'data' => $tasks->items(),
+                'links' => $tasks->links()->toHtml()
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Search error: ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred'], 500);
+        }
     }
+
+
 }
