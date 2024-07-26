@@ -35,30 +35,27 @@
                             <th style="width: 15%">
                                 <a href="#" class="sort-link" data-column="name" data-order="desc">
                                     Name
-                                    <i class="bi bi-sort-alpha-up sort-icon" style="display: none;"></i>
-                                    <i class="bi bi-sort-alpha-down sort-icon" style="display: none;"></i>
+                                    <i class="bi bi-sort-alpha-up sort-icon desc" style="display: none;"></i>
+                                    <i class="bi bi-sort-alpha-down sort-icon asc" style="display: none;"></i>
                                 </a>
                             </th>
                             <th style="width: 60%">
                                 <a href="#" class="sort-link" data-column="content" data-order="desc">
                                     Content
-                                    <i class="bi bi-sort-alpha-up sort-icon" style="display: none;"></i>
-                                    <i class="bi bi-sort-alpha-down sort-icon" style="display: none;"></i>
+                                    <i class="bi bi-sort-alpha-up sort-icon desc" style="display: none;"></i>
+                                    <i class="bi bi-sort-alpha-down sort-icon asc" style="display: none;"></i>
                                 </a>
                             </th>
-                            <th>
+                            <th style="width: 12%">
                                 <a href="#" class="sort-link" data-column="project" data-order="desc">
                                     Project
-                                    <i class="bi bi-sort-alpha-up sort-icon" style="display: none;"></i>
-                                    <i class="bi bi-sort-alpha-down sort-icon" style="display: none;"></i>
+                                    <i class="bi bi-sort-alpha-up sort-icon desc" style="display: none;"></i>
+                                    <i class="bi bi-sort-alpha-down sort-icon asc" style="display: none;"></i>
                                 </a>
                             </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-
-
-
                     <tbody id="tasks-table-body">
                         @foreach ($tasks as $task)
                             <tr class="align-middle" data-task-id="{{ $task->id }}">
@@ -67,10 +64,8 @@
                                 <td style="height: 80px;width: 50%">{{ $task->content }}</td>
                                 <td>{{ $task->project ? $task->project->name : 'No Project' }}</td>
                                 <td class="text-center">
-                                    <button class="btn btn-danger delete-btn"
-                                        data-task-id="{{ $task->id }}">Delete</button>
-                                    <button class="btn btn-warning edit-btn" data-task-id="{{ $task->id }}"
-                                        style="display:inline-block;margin-left: 3px">Edit</button>
+                                    <button class="btn btn-danger delete-btn" data-task-id="{{ $task->id }}">Delete</button>
+                                    <button class="btn btn-warning edit-btn" data-task-id="{{ $task->id }}" style="display:inline-block;margin-left: 3px">Edit</button>
                                 </td>
                             </tr>
                         @endforeach
@@ -88,8 +83,7 @@
     </div>
 
     <!-- Modal Confirm Delete -->
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -107,13 +101,11 @@
         </div>
     </div>
 
-
     <!-- Modal Create Task -->
     @include('tasks.create-modal')
 
     <!-- Modal Edit Task -->
     @include('tasks.edit-modal')
-
 
     <style>
         .sort-icon {
@@ -123,7 +115,17 @@
             transition: opacity 0.3s;
         }
 
+        .sort-asc .bi-sort-alpha-up {
+            color: #000;
+        }
 
+        .sort-desc .bi-sort-alpha-down {
+            color: #000;
+        }
+
+        .sort-link.active .sort-icon {
+            opacity: 1;
+        }
     </style>
 
     <script>
@@ -171,8 +173,7 @@
                 if (event.target && event.target.classList.contains('delete-btn')) {
                     const taskId = event.target.dataset.taskId;
                     taskToDelete = taskId;
-                    const taskName = event.target.closest('tr').querySelector('td:nth-child(2)')
-                        .textContent;
+                    const taskName = event.target.closest('tr').querySelector('td:nth-child(2)').textContent;
                     const modalTitle = document.querySelector('#deleteConfirmModalLabel');
                     const modalBody = document.querySelector('.modal-body');
                     modalTitle.textContent = `Delete Task #${taskId}`;
@@ -195,16 +196,14 @@
                         .then(response => response.json())
                         .then(() => {
                             document.querySelector(`tr[data-task-id="${taskToDelete}"]`).remove();
-                            updateTable(currentQuery, currentProjectId, currentPage, sortColumn,
-                                sortOrder);
+                            updateTable(currentQuery, currentProjectId, currentPage, sortColumn, sortOrder);
                         })
                         .catch(error => {
                             console.error('Error deleting task:', error);
                         })
                         .finally(() => {
                             taskToDelete = null;
-                            const modal = bootstrap.Modal.getInstance(document.getElementById(
-                                'deleteConfirmModal'));
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
                             if (modal) {
                                 modal.hide();
                             }
@@ -233,8 +232,7 @@
                     })
                     .then(response => response.json())
                     .then(() => {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(
-                            'createTaskModal'));
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('createTaskModal'));
                         modal.hide();
                         updateTable(currentQuery, currentProjectId, currentPage, sortColumn, sortOrder);
                     })
@@ -265,8 +263,7 @@
                     })
                     .then(response => response.json())
                     .then(() => {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(
-                            'editTaskModal'));
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
                         modal.hide();
                         updateTable(currentQuery, currentProjectId, currentPage, sortColumn, sortOrder);
                     })
@@ -318,19 +315,19 @@
 
                         // Cập nhật phân trang
                         if (data.links) {
-                    paginationLinks.innerHTML = data.links;
+                            paginationLinks.innerHTML = data.links;
 
-                    paginationLinks.querySelectorAll('a').forEach(link => {
-                        link.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            const url = new URL(link.href);
-                            const page = url.searchParams.get('page');
-                            updateTable(currentQuery, projectName, page, sortColumn, sortOrder);
-                        });
-                    });
-                } else {
-                    paginationLinks.innerHTML = '';
-                }
+                            paginationLinks.querySelectorAll('a').forEach(link => {
+                                link.addEventListener('click', function(event) {
+                                    event.preventDefault();
+                                    const url = new URL(link.href);
+                                    const page = url.searchParams.get('page');
+                                    updateTable(currentQuery, currentProjectId, page, sortColumn, sortOrder);
+                                });
+                            });
+                        } else {
+                            paginationLinks.innerHTML = '';
+                        }
 
                         // Cập nhật các liên kết sắp xếp
                         sortLinks.forEach(link => {
@@ -340,10 +337,15 @@
                             if (column === sortColumn) {
                                 link.classList.add(order === 'asc' ? 'sort-asc' : 'sort-desc');
                                 link.dataset.order = order === 'asc' ? 'desc' : 'asc';
-                                link.querySelector('.sort-icon').style.display = 'inline';
-                            } else { 
+                                link.querySelectorAll('.sort-icon').forEach(icon => {
+                                    icon.style.display = 'none';
+                                });
+                                link.querySelector(`.sort-icon.${order}`).style.display = 'inline';
+                            } else {
                                 link.dataset.order = 'desc';
-                                link.querySelector('.sort-icon').style.display = 'none';
+                                link.querySelectorAll('.sort-icon').forEach(icon => {
+                                    icon.style.display = 'none';
+                                });
                             }
                         });
                     })

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TaskUpdateRequest extends FormRequest
+class TaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,12 +19,20 @@ class TaskUpdateRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|min:5',
             'content' => 'required|string',
-            // Thêm các quy tắc xác thực khác nếu cần
+            'project_id' => 'nullable|exists:projects,id',
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Không được bỏ trống.',
+            'name.min' => 'Tối thiểu phải có 5 ký tự.',
+            'name.max' => 'Tối đa 255 ký tự.',
         ];
     }
 }

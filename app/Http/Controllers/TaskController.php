@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateTaskRequest;
+use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -32,20 +32,9 @@ class TaskController extends Controller
         return response()->json(['projects' => $projects]);
     }
 
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'content' => 'required|string',
-            'project_id' => 'nullable|exists:projects,id',
-        ]);
-
-        Task::create([
-            'name' => $request->name,
-            'content' => $request->content,
-            'project_id' => $request->project_id,
-        ]);
-
+        $this->task->create($request->all());
         return response()->json(['success' => true]);
     }
 
@@ -55,15 +44,10 @@ class TaskController extends Controller
         return response()->json(['task' => $task, 'projects' => $projects]);
     }
 
-    public function update(Request $request, Task $task)
+    public function update(TaskRequest $request, Task $task)
     {
-        $request->validate([
-            'name' => 'required|max:255',
-            'content' => 'nullable',
-            'project_id' => 'required|exists:projects,id',
-        ]);
 
-        $task->update($request->all());
+        $this->$task->update($request->all());
 
         return response()->json(['success' => true]);
     }

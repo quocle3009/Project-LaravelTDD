@@ -10,10 +10,16 @@
                     <div class="mb-3">
                         <label for="edit-task-name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="edit-task-name" required>
+                        @error('task-name')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label for="edit-task-content" class="form-label">Content</label>
                         <textarea class="form-control" id="edit-task-content" rows="3" required></textarea>
+                        @error('task-content')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-3">
                         <label for="edit-task-project" class="form-label">Project</label>
