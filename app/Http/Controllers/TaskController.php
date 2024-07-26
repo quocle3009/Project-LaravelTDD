@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateTaskRequest;
 use App\Models\Task;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -20,36 +21,38 @@ class TaskController extends Controller
 
     public function index()
     {
+        $projects = Project::all();
         $tasks = $this->task->latest('id')->paginate(10);
-        return view('tasks.index', compact('tasks'));
+        return view('tasks.index', compact('tasks', 'projects'));
     }
-
-
-    public function store(CreateTaskRequest $request)
-    {
-        $this->task->create($request->all());
-        return redirect()->route('tasks.index');
-    }
-
-
 
     public function create()
     {
-        return view('tasks.create');
+        $projects = Project::all();
+        return response()->json(['projects' => $projects]);
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'content' => 'required|string',
+            'project_id' => 'nullable|exists:projects,id',
+        ]);
+
+        Task::create([
+            'name' => $request->name,
+            'content' => $request->content,
+            'project_id' => $request->project_id,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
 
     public function edit(Task $task)
     {
-        return view('tasks.edit', compact('task'));
-    }
-
-
-    public function destroy(Task $task)
-    {
-        $task->delete();
-
-        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
+        $projects = Project::all();
+        return response()->json(['task' => $task, 'projects' => $projects]);
     }
 
     public function update(Request $request, Task $task)
@@ -57,25 +60,34 @@ class TaskController extends Controller
         $request->validate([
             'name' => 'required|max:255',
             'content' => 'nullable',
+            'project_id' => 'required|exists:projects,id',
         ]);
 
-        $task->update([
-            'name' => $request->input('name'),
-            'content' => $request->input('content'),
-        ]);
+        $task->update($request->all());
 
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+        return response()->json(['success' => true]);
     }
-    // TaskController.php
+
+    public function destroy(Task $task)
+    {
+        try {
+            $task->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Delete error: ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred'], 500);
+        }
+    }
+
     public function search(Request $request)
     {
         try {
             $query = $request->input('query', '');
+            $projectId = $request->input('project_id', '');
             $page = $request->input('page', 1);
             $sortColumn = $request->get('sort_column', 'id');
             $sortOrder = $request->get('sort_order', 'desc');
 
-            // Ensure sortColumn and sortOrder are valid
             $allowedSortColumns = ['id', 'name', 'content'];
             if (!in_array($sortColumn, $allowedSortColumns)) {
                 $sortColumn = 'id';
@@ -86,11 +98,18 @@ class TaskController extends Controller
                 $sortOrder = 'desc';
             }
 
-            // Query tasks with or without search query
-            $tasksQuery = Task::query();
-            if (!empty($query)) {
-                $tasksQuery->where('name', 'like', "%$query%")
-                    ->orWhere('content', 'like', "%$query%");
+            $tasksQuery = Task::query()
+                ->when($query, function ($q) use ($query) {
+                    return $q->where('name', 'like', "%{$query}%");
+                })
+                ->when($projectId, function ($q) use ($projectId) {
+                    return $q->where('project_id', $projectId);
+                })
+                ->with('project')
+                ->orderBy($sortColumn, $sortOrder);
+
+            if (!empty($projectId)) {
+                $tasksQuery->where('project_id', $projectId);
             }
 
             $tasks = $tasksQuery->orderBy($sortColumn, $sortOrder)
@@ -101,6 +120,7 @@ class TaskController extends Controller
                 'data' => $tasks->items(),
                 'links' => $tasks->appends([
                     'query' => $query,
+                    'project_id' => $projectId,
                     'sort_column' => $sortColumn,
                     'sort_order' => $sortOrder
                 ])->links()->toHtml()
@@ -110,8 +130,4 @@ class TaskController extends Controller
             return response()->json(['error' => 'An error occurred'], 500);
         }
     }
-
-
-
-
 }

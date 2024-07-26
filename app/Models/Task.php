@@ -11,5 +11,10 @@ class Task extends Model
 
     protected $table = 'tasks';
 
-    protected $fillable = ['name', 'content'];
+    protected $fillable = ['name', 'content', 'project_id'];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }
