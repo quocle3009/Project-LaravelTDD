@@ -30,9 +30,13 @@ class TaskRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Không được bỏ trống.',
-            'name.min' => 'Tối thiểu phải có 5 ký tự.',
-            'name.max' => 'Tối đa 255 ký tự.',
+            'name.required' => 'Name is required.',
+            'name.string' => 'Name must be a string.',
+            'name.max' => 'Name may not be greater than 255 characters.',
+            'name.min' => 'Name must be at least 5 characters.',
+            'content.required' => 'Content is required.',
+            'content.string' => 'Content must be a string.',
+            'project_id.exists' => 'The selected project is invalid.',
         ];
     }
 }

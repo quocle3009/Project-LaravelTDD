@@ -9,7 +9,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="task-name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="task-name" required>
+                        <input type="text" class="form-control" id="task-name" name="name" required>
                         @error('task-name')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -17,7 +17,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="task-content" class="form-label">Content</label>
-                        <textarea class="form-control" id="task-content" rows="3" required></textarea>
+                        <textarea class="form-control" id="task-content" rows="3" name="content" required></textarea>
                         @error('task-content')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
@@ -25,7 +25,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="task-project" class="form-label">Project</label>
-                        <select class="form-control" id="task-project" required>
+                        <select class="form-control" id="task-project" name="project_id" required>
                             <option value="">Select Project</option>
                             @foreach ($projects as $project)
                                 <option value="{{ $project->id }}">{{ $project->name }}</option>

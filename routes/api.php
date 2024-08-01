@@ -20,6 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/tasks/search', [TaskController::class, 'search'])->name('tasks.search');
-Route::get('/api/projects', [ProjectController::class, 'getProjects'])->name('projects.get');
+Route::get('/projects', [ProjectController::class, 'getProjects'])->name('projects.get');
 
 
